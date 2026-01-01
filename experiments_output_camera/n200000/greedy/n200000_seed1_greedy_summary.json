@@ -1,0 +1,50 @@
+{
+  "experiment": "n200000_seed1_greedy",
+  "graph_size": 200000,
+  "algorithm_name": "greedy",
+  "deleted": [
+    "n159909",
+    "n43419",
+    "n133976",
+    "n74866",
+    "n67407",
+    "n31280",
+    "n91288",
+    "n151519",
+    "n137081",
+    "n104901",
+    "n174227",
+    "n16626",
+    "n35610",
+    "n149789",
+    "n79592",
+    "n105744",
+    "n46015"
+  ],
+  "recomputed": [],
+  "initial_nodes": [
+    "n35610",
+    "n149789",
+    "n16626",
+    "n67407",
+    "n31280"
+  ],
+  "runtime_sec": 0.3640223001129925,
+  "deleted_size": 17,
+  "recomputed_size": 0,
+  "initial_size": 5,
+  "raw_cost": 17.0,
+  "normalized_cost": 8.5e-05,
+  "weighted_cost": 3.4,
+  "relative_cost": null,
+  "exact_deleted_size": null,
+  "exact_solution": null,
+  "naive_deleted_size": 17,
+  "naive_raw_cost": 17.0,
+  "relative_cost_naive": 1.0,
+  "metadata": {
+    "graph_size": 200000,
+    "seed": 1,
+    "algo_name": "greedy"
+  }
+}

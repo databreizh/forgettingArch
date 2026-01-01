@@ -1,0 +1,45 @@
+{
+  "experiment": "n50000_seed0_cost_aware_a05",
+  "graph_size": 50000,
+  "algorithm_name": "cost_aware_a05",
+  "deleted": [
+    "n25071",
+    "n41435",
+    "n2987",
+    "n49702",
+    "n2663",
+    "n16687",
+    "n31453",
+    "n19802",
+    "n27413"
+  ],
+  "recomputed": [
+    "n24892"
+  ],
+  "initial_nodes": [
+    "n25071",
+    "n49702",
+    "n27413",
+    "n2663",
+    "n16687"
+  ],
+  "runtime_sec": 0.11319630010984838,
+  "deleted_size": 9,
+  "recomputed_size": 1,
+  "initial_size": 5,
+  "raw_cost": 10.0,
+  "normalized_cost": 0.0002,
+  "weighted_cost": 2.0,
+  "relative_cost": null,
+  "exact_deleted_size": null,
+  "exact_solution": null,
+  "naive_deleted_size": 10,
+  "naive_raw_cost": 10.0,
+  "relative_cost_naive": 1.0,
+  "metadata": {
+    "graph_size": 50000,
+    "seed": 0,
+    "algo_name": "cost_aware_a05",
+    "alpha": 0.5
+  }
+}
