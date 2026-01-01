@@ -229,19 +229,7 @@ between workflows.
 
 ---
 
-## 11. Consistency with the Paper
-
-The reviewer should observe that:
-
-* Cluster-based propagation consistently achieves lower runtime on dense graphs.
-* Cost-aware forgetting reduces weighted cost compared to greedy and naive approaches
-  when recomputation costs vary.
-* Semi-realistic ML workflows exhibit larger forgetting propagation than crowdsourcing
-  pipelines due to deeper and more entangled dependency structures.
-
----
-
-## 12. Limitations
+## 11. Limitations
 
 * Exact minimal forgetting is computed only for very small graphs
   (≤ 26 nodes), due to NP-hardness.
@@ -249,16 +237,6 @@ The reviewer should observe that:
   from proprietary production traces.
 * The artifact focuses on static DAGs and does not yet support
   streaming or incremental forgetting.
-
----
-
-## 13. Reusability
-
-The artifact is modular and extensible:
-
-* New propagation algorithms can be added easily.
-* Synthetic generators can be modified to explore additional structures.
-* Cost models and recomputation policies are configurable.
 
 ---
 
