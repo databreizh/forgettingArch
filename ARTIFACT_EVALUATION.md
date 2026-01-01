@@ -262,16 +262,8 @@ The artifact is modular and extensible:
 
 ---
 
-## 14. Summary
+## ✉️ Contact
 
-This artifact is:
-
-* **Functional**
-* **Reproducible**
-* **Consistent with the paper**
-* **Reusable for future research**
-
-It fully supports the experimental claims made in the submission.
-
-```
+For questions, please open an issue or contact the authors via the VLDB
+submission system.
 
