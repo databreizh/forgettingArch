@@ -1,0 +1,15 @@
+# Core graph & algorithms
+networkx>=3.1
+
+# Numerical & data analysis
+numpy>=1.23
+pandas>=1.5
+
+# Plotting
+matplotlib>=3.7
+
+# Utilities
+tqdm>=4.65
+
+# Optional but useful for robustness
+scipy>=1.10
