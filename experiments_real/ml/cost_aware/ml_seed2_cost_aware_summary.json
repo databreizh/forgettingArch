@@ -1,0 +1,46 @@
+{
+  "experiment": "ml_seed2_cost_aware",
+  "graph_size": 77,
+  "algorithm_name": "cost_aware",
+  "deleted": [
+    "raw_11",
+    "raw_2",
+    "raw_1",
+    "raw_18",
+    "raw_5"
+  ],
+  "recomputed": [
+    "prep_raw_11",
+    "prep_raw_5",
+    "prep_raw_1",
+    "prep_raw_18",
+    "prep_raw_2"
+  ],
+  "initial_nodes": [
+    "raw_1",
+    "raw_2",
+    "raw_18",
+    "raw_11",
+    "raw_5"
+  ],
+  "runtime_sec": 0.00015870016068220139,
+  "deleted_size": 5,
+  "recomputed_size": 5,
+  "initial_size": 5,
+  "raw_cost": 25.0,
+  "normalized_cost": 0.3246753246753247,
+  "weighted_cost": 5.0,
+  "relative_cost": null,
+  "exact_deleted_size": null,
+  "exact_solution": null,
+  "naive_deleted_size": 32,
+  "naive_raw_cost": 695.0,
+  "relative_cost_naive": 0.03597122302158273,
+  "metadata": {
+    "flow_name": "ml",
+    "seed": 2,
+    "algo_name": "cost_aware",
+    "graph_size": 77,
+    "alpha": 0.5
+  }
+}

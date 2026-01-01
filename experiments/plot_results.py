@@ -198,23 +198,6 @@ def main() -> None:
         )
 
     df = pd.read_csv(SUMMARY_CSV)
-    
-    # --- build naive baseline per (graph_size, seed) then merge
-    seed_col = "meta_seed" if "meta_seed" in df.columns else ("seed" if "seed" in df.columns else None)
-
-    if seed_col is not None and "raw_cost" in df.columns:
-        naive = (
-            df[df["algorithm_name"] == "naive"][["graph_size", seed_col, "raw_cost"]]
-            .rename(columns={"raw_cost": "naive_raw_cost"})
-            .drop_duplicates(subset=["graph_size", seed_col])
-        )
-        df = df.merge(naive, on=["graph_size", seed_col], how="left")
-
-        # relative cost vs naive (only where baseline exists)
-        df["relative_cost_vs_naive"] = df["raw_cost"] / df["naive_raw_cost"]
-    else:
-        df["relative_cost_vs_naive"] = None
-
 
     # Coerce key columns
     _coerce_numeric(df, "graph_size")
@@ -222,124 +205,51 @@ def main() -> None:
     _coerce_numeric(df, "raw_cost")
     _coerce_numeric(df, "normalized_cost")
 
-    # ----------------------------------------------------------------
-    # Build "relative to naive" if possible
-    # We expect either:
-    #   - a baseline algorithm_name == "naive" with raw_cost
-    # or columns:
-    #   - naive_raw_cost in the same row (rare)
-    # Strategy: compute per (graph_size, meta_seed) naive mean raw_cost,
-    # then join and define relative_cost_vs_naive = raw_cost / naive_raw_cost.
-    # ----------------------------------------------------------------
-    rel_col = None
-    if "raw_cost" in df.columns:
-        # best effort: use meta_seed if present, else fall back to graph_size only
+    # ------------------------------------------------------------
+    # Relative cost vs Naive (robust): compute a baseline per run key then ratio
+    # Creates df["relative_cost_vs_naive"] (may contain NA if no matching naive)
+    # ------------------------------------------------------------
+    rel_col = "relative_cost_vs_naive"
+    df[rel_col] = pd.NA
+
+    if "raw_cost" not in df.columns:
+        print("[WARN] raw_cost absent -> impossible de calculer un coût relatif vs naive.")
+    else:
+        # Choose join keys: try to match the *same run conditions*
         join_keys = ["graph_size"]
         if "meta_seed" in df.columns:
             join_keys.append("meta_seed")
+        elif "seed" in df.columns:
+            join_keys.append("seed")
 
-        if "algorithm_name" in df.columns and (df["algorithm_name"] == "naive").any():
+        if "initial_size" in df.columns:
+            join_keys.append("initial_size")
+
+        # If initial_nodes exists (even as a string), it's the strictest match
+        if "initial_nodes" in df.columns:
+            join_keys.append("initial_nodes")
+
+        naive_df = df[df["algorithm_name"].astype(str).str.lower() == "naive"].copy()
+        if naive_df.empty:
+            print("[WARN] Aucun run naive dans le CSV -> pas de relative_cost_vs_naive.")
+        else:
             naive_base = (
-                df[df["algorithm_name"] == "naive"][join_keys + ["raw_cost"]]
-                .groupby(join_keys)["raw_cost"]
+                naive_df.groupby(join_keys, dropna=False)["raw_cost"]
                 .mean()
                 .reset_index()
                 .rename(columns={"raw_cost": "naive_raw_cost"})
             )
+
             df = df.merge(naive_base, on=join_keys, how="left")
-            #df["relative_cost_vs_naive"] = df["raw_cost"] / df["naive_raw_cost"]
-            
-            
-            
-            
-            # ---------------------------------------------------------
-            # Relative cost vs Naive: join with naive baseline runs
-            # ---------------------------------------------------------
-            join_keys = []
-            for k in ["graph_size", "meta_seed", "initial_size"]:
-                if k in df.columns:
-                    join_keys.append(k)
-
-            # Si tu as initial_nodes, c’est encore mieux (baseline stricte identique)
-            if "initial_nodes" in df.columns:
-                join_keys.append("initial_nodes")
-
-            if "raw_cost" not in df.columns:
-                print("[WARN] raw_cost absent -> pas de coût relatif.")
-                df["relative_cost_vs_naive"] = None
+            # Ancien calcul direct -> remplacé par garde-fou
+            if "naive_raw_cost" in df.columns:
+                mask = df["raw_cost"].notna() & df["naive_raw_cost"].notna() & (df["naive_raw_cost"] > 0)
+                df.loc[mask, "relative_cost_vs_naive"] = df.loc[mask, "raw_cost"] / df.loc[mask, "naive_raw_cost"]
             else:
-                naive = df[df["algorithm_name"] == "naive"].copy()
+                print("[WARN] naive_raw_cost absent -> relative_cost_vs_naive non calculé (pas de baseline naive joignable).")
 
-                if naive.empty:
-                    print("[WARN] Aucun run naive dans le CSV -> pas de relative_cost_vs_naive.")
-                    df["relative_cost_vs_naive"] = None
-                else:
-                    naive = naive[join_keys + ["raw_cost"]].rename(columns={"raw_cost": "naive_raw_cost"})
 
-                    df = df.merge(naive, on=join_keys, how="left")
 
-                    # Eviter divisions invalides
-                    df["relative_cost_vs_naive"] = None
-                    mask = df["naive_raw_cost"].notna() & (df["naive_raw_cost"] > 0)
-                    df.loc[mask, "relative_cost_vs_naive"] = df.loc[mask, "raw_cost"] / df.loc[mask, "naive_raw_cost"]
-
-                    missing = df["naive_raw_cost"].isna().sum()
-                    if missing > 0:
-                        print(f"[WARN] {missing} lignes sans baseline naive correspondante (join_keys={join_keys}).")
-
-        
-            
-            
-            
-            
-            rel_col = "relative_cost_vs_naive"
-        elif "naive_raw_cost" in df.columns:
-            _coerce_numeric(df, "naive_raw_cost")
-            
-            
-            #df["relative_cost_vs_naive"] = df["raw_cost"] / df["naive_raw_cost"]
-            
-            
-            
-            
-            # ---------------------------------------------------------
-            # Relative cost vs Naive: join with naive baseline runs
-            # ---------------------------------------------------------
-            join_keys = []
-            for k in ["graph_size", "meta_seed", "initial_size"]:
-                if k in df.columns:
-                    join_keys.append(k)
-
-            # Si tu as initial_nodes, c’est encore mieux (baseline stricte identique)
-            if "initial_nodes" in df.columns:
-                join_keys.append("initial_nodes")
-
-            if "raw_cost" not in df.columns:
-                print("[WARN] raw_cost absent -> pas de coût relatif.")
-                df["relative_cost_vs_naive"] = None
-            else:
-                naive = df[df["algorithm_name"] == "naive"].copy()
-
-                if naive.empty:
-                    print("[WARN] Aucun run naive dans le CSV -> pas de relative_cost_vs_naive.")
-                    df["relative_cost_vs_naive"] = None
-                else:
-                    naive = naive[join_keys + ["raw_cost"]].rename(columns={"raw_cost": "naive_raw_cost"})
-
-                    df = df.merge(naive, on=join_keys, how="left")
-
-                    # Eviter divisions invalides
-                    df["relative_cost_vs_naive"] = None
-                    mask = df["naive_raw_cost"].notna() & (df["naive_raw_cost"] > 0)
-                    df.loc[mask, "relative_cost_vs_naive"] = df.loc[mask, "raw_cost"] / df.loc[mask, "naive_raw_cost"]
-
-                    missing = df["naive_raw_cost"].isna().sum()
-                    if missing > 0:
-                        print(f"[WARN] {missing} lignes sans baseline naive correspondante (join_keys={join_keys}).")
-
-            
-            
-            rel_col = "relative_cost_vs_naive"
 
     # -------------------------
     # Runtime vs size
